@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>highblue | 개인 소개 홈페이지</title>
+    <style>
+        /* [디자인 시스템] */
+        :root {
+            --bg-color: #0a0a0c;
+            --card-bg: #16161a;
+            --cobalt-blue: #0047AB;
+            --cobalt-light: #4D88FF;
+            --text-main: #ffffff;
+            --text-dim: #a0a0a0;
+            --spacing: 2rem;
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        canvas#bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* [레이아웃] */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 var(--spacing);
+        }
+
+        section {
+            padding: 6rem 0;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* [히어로 섹션] */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* [뭉게구름 배경] */
+        .cloud-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            width: 400px;
+            height: 200px;
+            filter: blur(40px);
+            opacity: 0.6;
+            animation: cloud-float 8s ease-in-out infinite;
+        }
+
+        .cloud-part {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .cloud-p1 { width: 150px; height: 150px; top: 20px; left: 50px; }
+        .cloud-p2 { width: 200px; height: 200px; top: 0; left: 120px; }
+        .cloud-p3 { width: 120px; height: 120px; top: 50px; left: 250px; }
+        .cloud-p4 { width: 140px; height: 140px; top: -30px; left: 180px; }
+
+        @keyframes cloud-float {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-48%, -52%) scale(1.05); }
+        }
+
+        .hero h1 {
+            font-size: 6rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+            margin-bottom: 1rem;
+            position: relative;
+            background: linear-gradient(135deg, var(--text-main) 30%, var(--cobalt-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            color: var(--text-dim);
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            animation: bounce 2s infinite;
+            color: var(--cobalt-light);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-10px);}
+            60% {transform: translateY(-5px);}
+        }
+
+        /* [자기소개 섹션] */
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: rgba(0, 71, 171, 0.1);
+            border: 1px solid var(--cobalt-blue);
+            color: var(--cobalt-light);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .about h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: var(--cobalt-light);
+        }
+
+        /* [관심사 섹션] */
+        .interest-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .interest-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+            transition: transform 0.3s ease, background 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .interest-card:hover {
+            transform: translateY(-10px);
+            background: rgba(0, 71, 171, 0.15);
+            border-color: var(--cobalt-blue);
+        }
+
+        .interest-card .emoji {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .interest-card span {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        /* [갤러리 섹션] */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .gallery-item {
+            aspect-ratio: 16 / 9;
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(1);
+            transition: filter 0.5s ease;
+        }
+
+        .gallery-item:hover img {
+            filter: grayscale(0);
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover .gallery-overlay {
+            transform: translateY(0);
+        }
+
+        /* [푸터] */
+        footer {
+            padding: 4rem 0;
+            text-align: center;
+            color: var(--text-dim);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* [반응형] */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 3.5rem; }
+            section { padding: 4rem 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 파티클 배경 -->
+    <canvas id="bg-particles"></canvas>
+
+    <!-- 히어로 섹션 -->
+    <header class="hero container">
+        <div class="cloud-container">
+            <div class="cloud-part cloud-p1"></div>
+            <div class="cloud-part cloud-p2"></div>
+            <div class="cloud-part cloud-p3"></div>
+            <div class="cloud-part cloud-p4"></div>
+        </div>
+        <h1>highblue</h1>
+        <p>공상을 현실화 하는 것</p>
+        <div class="scroll-indicator">▼ Scroll Down</div>
+    </header>
+
+    <main class="container">
+        <!-- 자기소개 섹션 -->
+        <section id="about" class="about">
+            <div class="status-badge">현재 상태: 장기교육 중 & 일 안함</div>
+            <h2>안녕하세요,<br>공상을 현실로 만드는 highblue입니다.</h2>
+            <p style="font-size: 1.2rem; color: var(--text-dim);">
+                현실의 한계를 넘어 상상력을 구체적인 결과물로 바꾸는 과정에 즐거움을 느낍니다.<br>
+                지금은 더 큰 도약을 위해 교육에 집중하고 있습니다.
+            </p>
+        </section>
+
+        <!-- 관심사 섹션 -->
+        <section id="interests">
+            <h2 style="margin-bottom: 2rem; color: var(--cobalt-light);">관심사</h2>
+            <div class="interest-grid">
+                <div class="interest-card">
+                    <span class="emoji">🎮</span>
+                    <span>게임</span>
+                </div>
+                <div class="interest-card">
+                    <span class="emoji">📈</span>
+                    <span>경제</span>
+                </div>
+                <div class="interest-card">
+                    <span class="emoji">🌍</span>
+                    <span>국제 정치</span>
+                </div>
+                <div class="interest-card">
+                    <span class="emoji">⚔️</span>
+                    <span>역사</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 갤러리 섹션 -->
+        <section id="gallery">
+            <h2 style="margin-bottom: 2rem; color: var(--cobalt-light);">갤러리</h2>
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="https://picsum.photos/id/1/600/400" alt="갤러리 1">
+                    <div class="gallery-overlay">작업물 01</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://picsum.photos/id/2/600/400" alt="갤러리 2">
+                    <div class="gallery-overlay">작업물 02</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://picsum.photos/id/3/600/400" alt="갤러리 3">
+                    <div class="gallery-overlay">작업물 03</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 highblue. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // [파티클 배경 애니메이션]
+        const canvas = document.getElementById('bg-particles');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.5 + 0.2;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(0, 71, 171, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 80; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        initParticles();
+        animate();
+
+        // [스크롤 페이드인 애니메이션]
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // [마우스 상호작용 - 캔버스와 연결]
+        window.addEventListener('mousemove', (e) => {
+            // 마우스 주변 파티클 반응 (선택 사항 - 여기서는 간단하게 유지)
+        });
+    </script>
+</body>
+</html>
